@@ -264,7 +264,7 @@ h2 {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10%;
+    gap:26px;
 }
 
 
@@ -276,11 +276,24 @@ h2 {
     gap: 10px;
 }
 
+.friend-request{
+    border: 1px solid black;
+    padding: 10px;
+    border-radius: 50%;
+}
+
 
 .user-achivement>div>div:first-child {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 5px;
+}
+
+
+.friend-request>img{
+    height: 25px;
+    width: 25px;
 }
 
 

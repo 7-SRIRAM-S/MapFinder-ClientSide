@@ -120,14 +120,17 @@ function buildHtml(count,name,points,certificate){
         <div class="ranked-user-name">
             <div class="pointing-position">${count}</div>
             <div>
-                <h2>👦${name}</h2>
+                <h2>👦 ${name}</h2>
             </div>
         </div>
         <div class="user-achivement">
+            <div class="friend-request"> 
+                <img src="add-user.png" alt="adduser">
+            </div>
             <div>
                 <div>
                     <img src="trophy.png" alt="trophy">
-                    score
+                    Score
                 </div>
                 <p class="scoreText">${points}</p>
             </div>

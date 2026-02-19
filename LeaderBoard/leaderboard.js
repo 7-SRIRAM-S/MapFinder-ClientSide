@@ -2,7 +2,7 @@ LeaderBoard=(function(){
     
     var Api={
         show:{
-            LeaderBoardUrl:"../Map/js/Users.json"
+            LeaderBoardUrl:"./json/Users.json"
         }
     };
 
@@ -11,7 +11,7 @@ LeaderBoard=(function(){
     return{
         init:function(){
             $("#back").on("click", () => {
-                window.location.assign("/Map/view/home.html");
+                window.location.assign("/MapFinder/home.html");
             });
 
             $("#global").css({
@@ -125,18 +125,18 @@ function buildHtml(count,name,points,certificate){
         </div>
         <div class="user-achivement">
             <div class="friend-request"> 
-                <img src="add-user.png" alt="adduser">
+                <img src="./images/add-user.png" alt="adduser" title="Make Friend">
             </div>
             <div>
                 <div>
-                    <img src="trophy.png" alt="trophy">
+                    <img src="./images/trophy.png" alt="trophy">
                     Score
                 </div>
                 <p class="scoreText">${points}</p>
             </div>
             <div>
                 <div>
-                    <img src="medal.png" alt="medal">
+                    <img src="./images/medal.png" alt="medal">
                     Certs
                 </div>
                 <p class="scoreText">${certificate}</p>

@@ -71,14 +71,13 @@ Home=(function(){
                         return;
                     }
 
-                    if(data.length<3){
-                        for(i=data.length+1; i <= 3 ; i++){
+                    if(data.length<7){
+                        for(i=data.length+1; i <= 7 ; i++){
                             $(`#notification-${i}`).hide();
                         }
                     }
                     for (let i = 0; i < data.length; i++) {
                         $($(".notifiction-message")[i]).html(buildMessage(data[i].message,Img));
-
                         $($(".notification-time")[i]).html(`<img src=${Img.clock} id="clock">`+dateDifference(data[i].time));
                     }
                 }

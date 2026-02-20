@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/learnmode.css">
+</head>
+<body>
+    <div id="learn_mood_container">
+        <div id="header_container">
+            <div id="header_left">
+                <button id="back"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-5 h-5 text-blue-700" aria-hidden="true" data-fg-czfo6=":427.8234:/components/modes/LearnMode.tsx:79:15:2455:47:e:ArrowLeft::::::EIC8"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg></button>
+                <h1>Master the Geography of India</h1>
+            </div>
+            <div id="header_rigth"></div>
+        </div>
+        <div id="view_container">
+            <div id="left_view">
+                <div id="duration_container">
+                    <div id="duration_head">
+                        SET DURATION
+                    </div>
+                    <div id="duration">
+                        <div id="ten_secound">10s</div>
+                        <div id="twenty_secound">20s</div>
+                        <div id="thaty_secound">30s</div>
+                        <div id="sixty_secound">60s</div>
+                    </div>
+                </div>
+                <div id="remaining_container">
+                    <p id="remain">REMAINING</p>
+                    <h2 id="remaining_secound">30</h2>
+                </div>
+                <div id="action_container">
+                    <button id="start_container">
+                        <img src="../icons/colorized-play-button (1).png.png" alt=""> START GAME</button>
+                    <button id="pause_container" disabled>
+                        <img src="../icons/pause-button.png" alt=""> Pause</button>
+                    <button id="restart_container">
+                        <img src="../icons/undo.png" alt=""> Restart</button>
+                </div>
+                <div id="score_container">
+                    <p id="score_head">TOTAL SCORE</p>
+                    <h3 id="score">0</h3>
+                </div>
+            </div>
+            <div id="view">
+                <div id="map_title">India Map</div>
+                <div id="map_container">
+                    <button id="Play"><img src="../icons/colorized-play-button (1).png.png" alt=""></button>
+                    <p id="explore">Ready to explore?</p>
+                    <p id="knowledage">Test your knowledge of Indian states and Union Territories.</p>
+                    <button id="start">Start New Game</button>
+                </div>
+            </div>
+            <div id="right_view">
+                <div id="explore">EXPLORE MORE</div>
+                <div id="explore_container">
+                    <div id="map_capital_container">
+                        <div id="icon">
+                            <img src="../icons/colorized-map.png.png" alt="">
+                        </div>
+                        <h3>Map the Capital</h3>
+                        <p>Match the correct capital cities with their respective Indian states.</p>
+                        <button id="play_map_capital">Play Challenge</button>
+                    </div>
+                    <div id="capital_speller_container">
+                        <div id="icon">
+                            <img src="../icons/colorized-trophy.png" alt="">
+                        </div>
+                        <h3>Capital Speller</h3>
+                        <p>Improve your spelling by identifying and typing capital names correctly.</p>
+                        <button id="play_speller">Start Quiz</button>
+                    </div>
+                    <div id="did_you_know_container">
+                        <h3>Did you know?</h3>
+                        <p>India has 28 states and 8 Union Territories. The newest Union Territories are Jammu & Kashmir and Ladakh.</p>
+                        <button id="learn_more" onclick="progressBar()">LEARN HISTORY</button>
+                    </div>
+                    <div id="discovered_container">
+                        <p>States Discovered</p>
+                        <div id="dicoverd">0</div>
+                        <div class="progress">
+                            <div class="progress-bar" id="progressBar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let value=0;
+        function progressBar(){
+            if(value < 14){
+            let percentage = (++value / 14) * 100;
+            document.querySelector("#dicoverd").innerText=value;
+            document.getElementById("progressBar").style.width = percentage + "%";
+            }
+        }
+    </script>
+</body>
+</html>

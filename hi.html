@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+</head>
+<body>
+    <script>
+        function notifyMe(head,message) {
+            const option={
+                body:message,
+                icon:"./Map/icons/colorized-trophy.png",
+                
+            }
+
+
+            if (!("Notification" in window)) {
+                alert("This browser does not support notification");
+                return;
+            } 
+            
+            if (Notification.permission === "granted") {
+                new Notification(head,option);
+            }else if(Notification.permission==="default"){
+                Notification.requestPermission().then(permission=>{
+                    if (permission=="granted") {
+                        new Notification(head,option);
+                    }
+                })
+            }
+
+        }
+        
+        notifyMe("Ajith","hi friend");
+
+        
+    </script>
+    
+</body>
+</html>

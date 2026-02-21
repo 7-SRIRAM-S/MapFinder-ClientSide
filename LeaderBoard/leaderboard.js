@@ -184,32 +184,98 @@ LeaderBoard = (function() {
 LeaderBoard.init();
 
 
-function buildHtml(count,name,points,certificate){
-    return(`<div class="ranking">
-        <div class="ranked-user-name">
-            <div class="pointing-position">${count}</div>
-            <div>
-                <h2>👦 ${name}</h2>
-            </div>
-        </div>
-        <div class="user-achivement">
-            <div class="friend-request"> 
-                <img src="add-user.png" alt="adduser">
-            </div>
-            <div>
-                <div>
-                    <img src="trophy.png" alt="trophy">
-                    Score
-                </div>
-                <p class="scoreText">${points}</p>
-            </div>
-            <div>
-                <div>
-                    <img src="medal.png" alt="medal">
-                    Certs
-                </div>
-                <p class="scoreText">${certificate}</p>
-            </div>
-        </div>
-    </div>`);
+
+function buildHtml(count, name, points, certificate, isFriend) {
+
+    // Main container
+    const ranking = document.createElement("div");
+    ranking.className = "ranking";
+
+    // ===== ranked-user-name =====
+    const rankedUserName = document.createElement("div");
+    rankedUserName.className = "ranked-user-name";
+
+    const pointingPosition = document.createElement("div");
+    pointingPosition.className = "pointing-position";
+    pointingPosition.textContent = count;
+
+    const nameWrapper = document.createElement("div");
+
+    const h2 = document.createElement("h2");
+    h2.textContent = `👦 ${name}`;
+
+    nameWrapper.appendChild(h2);
+    rankedUserName.appendChild(pointingPosition);
+    rankedUserName.appendChild(nameWrapper);
+
+    // ===== user-achievement =====
+    const userAchievement = document.createElement("div");
+    userAchievement.className = "user-achivement";
+
+    // ---- friend request ----
+    const friendRequest = document.createElement("div");
+    friendRequest.className = "friend-request";
+
+    const addUserImg = document.createElement("img");
+    if (!isFriend) {
+        addUserImg.src = "./images/add-user.png";
+        addUserImg.alt = "adduser";
+        addUserImg.title = "Make Friend";
+    }
+    else {
+        addUserImg.src = "./icons/friends.png";
+        addUserImg.alt = "friend";
+
+    }
+
+
+    friendRequest.appendChild(addUserImg);
+    // ---- score section ----
+    const scoreContainer = document.createElement("div");
+
+    const scoreTitle = document.createElement("div");
+
+    const trophyImg = document.createElement("img");
+    trophyImg.src = "./images/trophy.png";
+    trophyImg.alt = "trophy";
+
+    scoreTitle.appendChild(trophyImg);
+    scoreTitle.append(" Score ");
+
+    const scoreText = document.createElement("p");
+    scoreText.className = "scoreText";
+    scoreText.textContent = points+" ";
+
+    scoreContainer.appendChild(scoreTitle);
+    scoreContainer.appendChild(scoreText);
+
+    // ---- certificate section ----
+    const certContainer = document.createElement("div");
+
+    const certTitle = document.createElement("div");
+
+    const medalImg = document.createElement("img");
+    medalImg.src = "./images/medal.png";
+    medalImg.alt = "medal";
+
+    certTitle.appendChild(medalImg);
+    certTitle.append(" Certs");
+
+    const certText = document.createElement("p");
+    certText.className = "scoreText";
+    certText.textContent = certificate;
+
+    certContainer.appendChild(certTitle);
+    certContainer.appendChild(certText);
+
+    // Append all to userAchievement
+    userAchievement.appendChild(friendRequest);
+    userAchievement.appendChild(scoreContainer);
+    userAchievement.appendChild(certContainer);
+
+    // Append everything to ranking
+    ranking.appendChild(rankedUserName);
+    ranking.appendChild(userAchievement);
+
+    return ranking;
 }

@@ -16,6 +16,31 @@ API =(function(){
                     }else{
                         throw new Error("Url not found");
                     }
+            },
+            post:async function(param){
+                if(!!param){
+                    if(!!param.url){
+                        let response=await fetch(param.url,{
+                            method:"POST",
+                            headers:{
+                                "Content-Type":"application/json"
+                            },
+                            body:JSON.stringify(param.data)
+                        });
+
+                        if(!response.ok){
+                            throw new Error("Posting the data failed.");
+                        }
+
+                        return{
+                            "data": await response.json()
+                        }
+                    }else{
+                        throw new Error("No url found for post request.")
+                    }
+                }else{
+                    throw new Error("No parameter found for the post request.")
+                }
             }
         }
 }) ();

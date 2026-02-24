@@ -8,23 +8,64 @@ API = (function() {
                     throw new Error("fetching data is failed");
                 }
 
-                    return{
-                        
-                        "data":await response.json()
-                    }
-                    
-                    }else{
-                        throw new Error("Url not found");
-                    }
+                return {
+
+                    "data": await response.json()
+                }
+
+            } else {
+                throw new Error("Url not found");
             }
         }
-}) ();
+    }
+})();
+
+SESSION = (function() {
+    return {
+        checkSession: async function() {
+            try {
+                let res = await fetch("/MapFinder/checksession");
+                let data = await res.json();
+
+                if (data.status === "failed") {
+                    localStorage.clear();
+                    console.log("session not exist");
+                    return false;
+                }
+
+                console.log("session exist");
+                localStorage.setItem("username", data.message);
+                return true;
+
+            } catch (err) {
+                console.log(err);
+                return false;
+            }
+        }
+    }
+})();
 
 
+WINDOW = (function() {
+    return {
+        changeUrl: function(uri) {
+            window.location.replace(uri);
+        },
 
-NOTIFICATION=(function(){
-    return{
-        send:function(head,message){
+        blockGoBack: function() {
+            history.pushState(null, null, location.href);
+            window.onpopstate = function() {
+                history.go(1);
+            };
+        }
+
+    }
+})();
+
+
+NOTIFICATION = (function() {
+    return {
+        send: function(head, message) {
             checkBrowser();
 
             const option = {
@@ -256,6 +297,7 @@ NOTIFY_PANEL = (function () {
                 margin-top: 8px;
                 display: flex;
                 gap: 8px;
+				justify-content: end;
             }
 
             .notify-btn {
@@ -284,6 +326,7 @@ NOTIFY_PANEL = (function () {
         if (panel) {
             panel.remove();
             panel = null;
+			document.body.style.background = "rgba(255,255,255)";
             document.removeEventListener("click", outsideClickHandler);
         }
     }
@@ -312,7 +355,7 @@ NOTIFY_PANEL = (function () {
 
                 div.innerHTML = `<div>${item.message}</div>`;
 
-                if (item.type === "friend_request") {
+                if (item.type.toLowerCase()=== "friend_request") {
 
                     const actionDiv = document.createElement("div");
                     actionDiv.className = "notify-actions";
@@ -377,6 +420,181 @@ NOTIFY_PANEL = (function () {
         close: function () {
             closePanel();
         }
+    };
+})();
+
+
+
+
+
+
+// ------------------- WIN CELEBRATION SYSTEM -----------------------
+CELEBRATION = (function () {
+
+    let overlay, flashCanvas, fctx, cCanvas, cctx;
+    let sparkles = [];
+    let flashRunning = false;
+    let flashRAF;
+
+    // ---------- Inject CSS ----------
+    function injectStyle() {
+
+        if (document.getElementById("celebration-style")) return;
+
+        const style = document.createElement("style");
+        style.id = "celebration-style";
+
+        style.innerHTML = `
+        #celebration-overlay{
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,0.4);
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            z-index:10000;
+        }
+
+        .celebration-card{
+            background:#fff;
+            padding:40px;
+            border-radius:20px;
+            text-align:center;
+            width:420px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.2);
+            font-family:Nunito, sans-serif;
+            position:relative;
+        }
+
+        .celebration-title{
+            font-size:28px;
+            color:#ff6b9d;
+            font-weight:bold;
+        }
+
+        .celebration-msg{
+            margin-top:15px;
+            color:#666;
+            font-weight:600;
+        }
+
+        .celebration-btn{
+            margin-top:25px;
+            padding:10px 25px;
+            border:none;
+            border-radius:30px;
+            background:linear-gradient(135deg,#ff6b9d,#ffa75c);
+            color:white;
+            cursor:pointer;
+            font-weight:bold;
+        }
+
+        #confetti-canvas{
+            position:fixed;
+            inset:0;
+            pointer-events:none;
+            z-index:10001;
+        }
+        `;
+
+        document.head.appendChild(style);
+    }
+
+    // ---------- Build HTML ----------
+    function buildUI(username, message) {
+
+        remove();
+
+        overlay = document.createElement("div");
+        overlay.id = "celebration-overlay";
+
+        overlay.innerHTML = `
+            <div class="celebration-card">
+                <h2 class="celebration-title">🏆 Congratulations ${username}!</h2>
+                <div class="celebration-msg">${message}</div>
+                <button class="celebration-btn">Awesome 🎉</button>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        overlay.querySelector(".celebration-btn").onclick = close;
+
+        // canvas
+        cCanvas = document.createElement("canvas");
+        cCanvas.id = "confetti-canvas";
+        document.body.appendChild(cCanvas);
+        cctx = cCanvas.getContext("2d");
+
+        resizeCanvas();
+        startConfetti();
+    }
+
+    function resizeCanvas(){
+        cCanvas.width = window.innerWidth;
+        cCanvas.height = window.innerHeight;
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+
+    // ---------- SIMPLE CONFETTI ----------
+    let confetti = [];
+
+    function createPiece(){
+        return {
+            x: Math.random()*cCanvas.width,
+            y: -20,
+            vy: 3+Math.random()*3,
+            size: 6+Math.random()*6,
+            color: `hsl(${Math.random()*360},80%,60%)`
+        };
+    }
+
+    function startConfetti(){
+        for(let i=0;i<120;i++) confetti.push(createPiece());
+        flashRunning = true;
+        loop();
+    }
+
+    function loop(){
+        if(!flashRunning) return;
+
+        cctx.clearRect(0,0,cCanvas.width,cCanvas.height);
+
+        confetti.forEach(p=>{
+            p.y += p.vy;
+            cctx.fillStyle=p.color;
+            cctx.fillRect(p.x,p.y,p.size,p.size);
+        });
+
+        confetti = confetti.filter(p=>p.y < cCanvas.height+20);
+
+        flashRAF = requestAnimationFrame(loop);
+    }
+
+    // ---------- CLOSE ----------
+    function close(){
+        remove();
+    }
+
+    function remove(){
+        flashRunning=false;
+        cancelAnimationFrame(flashRAF);
+
+        if(overlay) overlay.remove();
+        if(cCanvas) cCanvas.remove();
+
+        overlay=null;
+        confetti=[];
+    }
+
+    // ---------- PUBLIC API ----------
+    return {
+        show:function(username,message){
+            injectStyle();
+            buildUI(username,message);
+        },
+        close:close
     };
 
 })();

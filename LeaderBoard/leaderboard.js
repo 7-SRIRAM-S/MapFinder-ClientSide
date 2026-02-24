@@ -36,13 +36,10 @@ LeaderBoard = (function() {
 			$("#global").addClass("active-btn");
             LeaderBoard.show.view();
         },
-        show: {
-            view: async function() {
-                data = await LeaderBoard.get.view();
-                let html = "";
-                data = data.data;
-
-                console.log(data);
+        show:{
+            view:async function(){
+                let data=await LeaderBoard.get.view();
+                let html="";
 
                 for (let i = 0;i < 3;i++) {
                     $(`.user-name-${i + 1}`).text(data[i].userName);
@@ -185,6 +182,7 @@ LeaderBoard = (function() {
 })();
 
 LeaderBoard.init();
+
 
 
 function buildHtml(count, name, points, certificate, isFriend) {

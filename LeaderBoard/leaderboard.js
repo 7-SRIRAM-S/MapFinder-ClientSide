@@ -15,7 +15,7 @@ LeaderBoard = (function() {
                 window.location.assign("/MapFinder/home.html");
             });
 
-			$("#global, #friend").click(function () {
+			$("#global, #friend").clikck(function () {
 			    $("#global, #friend").removeClass("active-btn");
 				
 			    $(this).addClass("active-btn");

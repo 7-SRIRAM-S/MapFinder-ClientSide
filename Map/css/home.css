@@ -380,7 +380,7 @@ a{
     scrollbar-width: none;
 }
 
-#notification-1,#notification-2,#notification-3{
+#notification{
     background-color: #FFF7ED;
     border-radius: 10px;
     padding: 10px 20px;

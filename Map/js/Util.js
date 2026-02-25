@@ -8,64 +8,48 @@ API = (function() {
                     throw new Error("fetching data is failed");
                 }
 
-                return {
+                    return{
+                        
+                        "data":await response.json()
+                    }
+                    
+                    }else{
+                        throw new Error("Url not found");
+                    }
+            },
+            post:async function(param){
+                if(!!param){
+                    if(!!param.url){
+                        let response=await fetch(param.url,{
+                            method:"POST",
+                            headers:{
+                                "Content-Type":"application/json"
+                            },
+                            body:JSON.stringify(param.data)
+                        });
 
-                    "data": await response.json()
+                        if(!response.ok){
+                            throw new Error("Posting the data failed.");
+                        }
+
+                        return{
+                            "data": await response.json()
+                        }
+                    }else{
+                        throw new Error("No url found for post request.")
+                    }
+                }else{
+                    throw new Error("No parameter found for the post request.")
                 }
-
-            } else {
-                throw new Error("Url not found");
             }
         }
-    }
-})();
-
-SESSION = (function() {
-    return {
-        checkSession: async function() {
-            try {
-                let res = await fetch("/MapFinder/checksession");
-                let data = await res.json();
-
-                if (data.status === "failed") {
-                    localStorage.clear();
-                    console.log("session not exist");
-                    return false;
-                }
-
-                console.log("session exist");
-                localStorage.setItem("username", data.message);
-                return true;
-
-            } catch (err) {
-                console.log(err);
-                return false;
-            }
-        }
-    }
-})();
+}) ();
 
 
-WINDOW = (function() {
-    return {
-        changeUrl: function(uri) {
-            window.location.replace(uri);
-        },
 
-        blockGoBack: function() {
-            history.pushState(null, null, location.href);
-            window.onpopstate = function() {
-                history.go(1);
-            };
-        }
-
-    }
-})();
-
-
-NOTIFICATION = (function() {
-    return {
-        send: function(head, message) {
+NOTIFICATION=(function(){
+    return{
+        send:function(head,message){
             checkBrowser();
 
             const option = {
@@ -242,359 +226,3 @@ function checkBrowser() {
         return;
     }
 }
-
-
-
-
-
-// ------------------- Notification Dropdown System -----------------------
-NOTIFY_PANEL = (function () {
-
-    let panel = null;
-
-    (function injectStyle(){
-        if(document.getElementById("notify-panel-style")) return;
-
-        const style = document.createElement("style");
-        style.id = "notify-panel-style";
-
-        style.innerHTML = `
-            .notify-panel {
-                position: absolute;
-                width: 420px;
-				height: 100%;
-                background: #fff;
-                box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-                border-radius: 6px;
-                overflow: hidden;
-                z-index: 1000;
-                animation: slideDown 0.2s ease;
-                font-family: Arial, sans-serif;
-            }
-
-            .notify-panel::before {
-                content: "";
-                position: absolute;
-                top: -8px;
-                right: 20px;
-                border-width: 8px;
-                border-style: solid;
-                border-color: transparent transparent #fff transparent;
-            }
-
-            .notify-item {
-                padding: 12px;
-                border-bottom: 1px solid #eee;
-                font-size: 14px;
-                background-color: #F7F7FD;
-            }
-
-            .notify-item:last-child {
-                border-bottom: none;
-            }
-
-            .notify-actions {
-                margin-top: 8px;
-                display: flex;
-                gap: 8px;
-				justify-content: end;
-            }
-
-            .notify-btn {
-                padding: 4px 10px;
-                font-size: 12px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-            }
-
-            .accept-btn {
-                background: #28a745;
-                color: white;
-            }
-
-            .reject-btn {
-                background: #dc3545;
-                color: white;
-            }
-        `;
-
-        document.head.appendChild(style);
-    })();
-
-    function closePanel() {
-        if (panel) {
-            panel.remove();
-            panel = null;
-			document.body.style.background = "rgba(255,255,255)";
-            document.removeEventListener("click", outsideClickHandler);
-        }
-    }
-
-    function outsideClickHandler(e) {
-        if (panel && !panel.contains(e.target) && !e.target.closest("#notification")) {
-            closePanel();
-        }
-    }
-
-    function buildPanel(notifications) {
-
-        closePanel();
-
-        panel = document.createElement("div");
-        panel.className = "notify-panel";
-		document.body.style.background = "rgba(0,0,0,0.4)";
-
-        if (!notifications || notifications.length === 0) {
-            panel.innerHTML = `<div class="notify-item">No Notifications</div>`;
-        } else {
-            notifications.forEach(item => {
-
-                const div = document.createElement("div");
-                div.className = "notify-item";
-
-                div.innerHTML = `<div>${item.message}</div>`;
-
-                if (item.type.toLowerCase()=== "friend_request") {
-
-                    const actionDiv = document.createElement("div");
-                    actionDiv.className = "notify-actions";
-
-                    const acceptBtn = document.createElement("button");
-                    acceptBtn.className = "notify-btn accept-btn";
-                    acceptBtn.innerText = "Accept";
-                    acceptBtn.onclick = function () {
-                        NOTIFY_PANEL.accept(item.id);
-                        div.remove();
-                    };
-
-                    const rejectBtn = document.createElement("button");
-                    rejectBtn.className = "notify-btn reject-btn";
-                    rejectBtn.innerText = "Reject";
-                    rejectBtn.onclick = function () {
-                        NOTIFY_PANEL.reject(item.id);
-                        div.remove();
-                    };
-
-                    actionDiv.appendChild(acceptBtn);
-                    actionDiv.appendChild(rejectBtn);
-                    div.appendChild(actionDiv);
-                }
-
-                panel.appendChild(div);
-            });
-        }
-
-        // Position panel under notification button
-        const button = document.getElementById("notification");
-        const rect = button.getBoundingClientRect();
-
-        panel.style.top = rect.bottom + window.scrollY + "px";
-        panel.style.left = rect.right - 420 + window.scrollX + "px";
-
-        document.body.appendChild(panel);
-
-        setTimeout(() => {
-            document.addEventListener("click", outsideClickHandler);
-        }, 0);
-    }
-
-    return {
-
-        toggle: function (notifications) {
-            if (panel) {
-                closePanel();
-            } else {
-                buildPanel(notifications);
-            }
-        },
-
-        accept: function (id) {
-            console.log("Accepted friend request:", id);
-        },
-
-        reject: function (id) {
-            console.log("Rejected friend request:", id);
-        },
-
-        close: function () {
-            closePanel();
-        }
-    };
-})();
-
-
-
-
-
-
-// ------------------- WIN CELEBRATION SYSTEM -----------------------
-CELEBRATION = (function () {
-
-    let overlay, flashCanvas, fctx, cCanvas, cctx;
-    let sparkles = [];
-    let flashRunning = false;
-    let flashRAF;
-
-    // ---------- Inject CSS ----------
-    function injectStyle() {
-
-        if (document.getElementById("celebration-style")) return;
-
-        const style = document.createElement("style");
-        style.id = "celebration-style";
-
-        style.innerHTML = `
-        #celebration-overlay{
-            position:fixed;
-            inset:0;
-            background:rgba(0,0,0,0.4);
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            z-index:10000;
-        }
-
-        .celebration-card{
-            background:#fff;
-            padding:40px;
-            border-radius:20px;
-            text-align:center;
-            width:420px;
-            box-shadow:0 20px 60px rgba(0,0,0,0.2);
-            font-family:Nunito, sans-serif;
-            position:relative;
-        }
-
-        .celebration-title{
-            font-size:28px;
-            color:#ff6b9d;
-            font-weight:bold;
-        }
-
-        .celebration-msg{
-            margin-top:15px;
-            color:#666;
-            font-weight:600;
-        }
-
-        .celebration-btn{
-            margin-top:25px;
-            padding:10px 25px;
-            border:none;
-            border-radius:30px;
-            background:linear-gradient(135deg,#ff6b9d,#ffa75c);
-            color:white;
-            cursor:pointer;
-            font-weight:bold;
-        }
-
-        #confetti-canvas{
-            position:fixed;
-            inset:0;
-            pointer-events:none;
-            z-index:10001;
-        }
-        `;
-
-        document.head.appendChild(style);
-    }
-
-    // ---------- Build HTML ----------
-    function buildUI(username, message) {
-
-        remove();
-
-        overlay = document.createElement("div");
-        overlay.id = "celebration-overlay";
-
-        overlay.innerHTML = `
-            <div class="celebration-card">
-                <h2 class="celebration-title">🏆 Congratulations ${username}!</h2>
-                <div class="celebration-msg">${message}</div>
-                <button class="celebration-btn">Awesome 🎉</button>
-            </div>
-        `;
-
-        document.body.appendChild(overlay);
-
-        overlay.querySelector(".celebration-btn").onclick = close;
-
-        // canvas
-        cCanvas = document.createElement("canvas");
-        cCanvas.id = "confetti-canvas";
-        document.body.appendChild(cCanvas);
-        cctx = cCanvas.getContext("2d");
-
-        resizeCanvas();
-        startConfetti();
-    }
-
-    function resizeCanvas(){
-        cCanvas.width = window.innerWidth;
-        cCanvas.height = window.innerHeight;
-    }
-
-    window.addEventListener("resize", resizeCanvas);
-
-    // ---------- SIMPLE CONFETTI ----------
-    let confetti = [];
-
-    function createPiece(){
-        return {
-            x: Math.random()*cCanvas.width,
-            y: -20,
-            vy: 3+Math.random()*3,
-            size: 6+Math.random()*6,
-            color: `hsl(${Math.random()*360},80%,60%)`
-        };
-    }
-
-    function startConfetti(){
-        for(let i=0;i<120;i++) confetti.push(createPiece());
-        flashRunning = true;
-        loop();
-    }
-
-    function loop(){
-        if(!flashRunning) return;
-
-        cctx.clearRect(0,0,cCanvas.width,cCanvas.height);
-
-        confetti.forEach(p=>{
-            p.y += p.vy;
-            cctx.fillStyle=p.color;
-            cctx.fillRect(p.x,p.y,p.size,p.size);
-        });
-
-        confetti = confetti.filter(p=>p.y < cCanvas.height+20);
-
-        flashRAF = requestAnimationFrame(loop);
-    }
-
-    // ---------- CLOSE ----------
-    function close(){
-        remove();
-    }
-
-    function remove(){
-        flashRunning=false;
-        cancelAnimationFrame(flashRAF);
-
-        if(overlay) overlay.remove();
-        if(cCanvas) cCanvas.remove();
-
-        overlay=null;
-        confetti=[];
-    }
-
-    // ---------- PUBLIC API ----------
-    return {
-        show:function(username,message){
-            injectStyle();
-            buildUI(username,message);
-        },
-        close:close
-    };
-
-})();

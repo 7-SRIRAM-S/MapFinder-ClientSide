@@ -41,6 +41,11 @@ LeaderBoard = (function() {
                 let data=await LeaderBoard.get.view();
                 let html="";
 
+                if(!data){
+                    $(".leaderboard-toplist").html("<div id='no-data'>No User Found</div>");
+                    $(".ranking-container").html("<div id='no-data'>No User Found</div>");
+                    return;
+                }
                 for (let i = 0;i < 3;i++) {
                     $(`.user-name-${i + 1}`).text(data[i].userName);
                     $(`.user-points-${i + 1}`).text(data[i].totalScore);

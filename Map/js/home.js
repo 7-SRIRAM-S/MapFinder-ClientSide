@@ -5,17 +5,17 @@ Home=(function(){
     var Api={
 
         Show:{
-            UserDetailUrl : "./json/data.json",
-            TopPlayerListUrl : "./json/Users.json?limit=5&offset=0",
-            NotificationListUrl : "./json/notification.json?limit=3&offset=0" 
+            UserDetailUrl : "../js/data.json",
+            TopPlayerListUrl : "../js/Users.json?limit=5&offset=0",
+            NotificationListUrl : "../js/notification.json?limit=3&offset=0" 
         }
     }
 
     var Img={
-        portyPapper:"./icons/party-popper.png",
-        tropy:"./icons/trophy(1).png",
-        lightning:"./icons/lightning.png",
-        clock:"./icons/clock.png"
+        portyPapper:"../icons/party-popper.png",
+        tropy:"../icons/trophy(1).png",
+        lightning:"../icons/lightning.png",
+        clock:"../icons/clock.png"
     }
 
     return{
@@ -71,14 +71,13 @@ Home=(function(){
                         return;
                     }
 
-                    if(data.length<7){
-                        for(i=data.length+1; i <= 7 ; i++){
-                            $(`#notification-${i}`).hide();
-                        }
-                    }
+                    $("#notification-container").html("");
+
+                    let container=$("#notification-container");
+                    
                     for (let i = 0; i < data.length; i++) {
-                        $($(".notifiction-message")[i]).html(buildMessage(data[i].message,Img));
-                        $($(".notification-time")[i]).html(`<img src=${Img.clock} id="clock">`+dateDifference(data[i].time));
+                        console.log(data[i].message,data[i].time)
+                        container.append(addMessage(data[i].message,data[i].time,Img));
                     }
                 }
         },
@@ -116,50 +115,6 @@ Home=(function(){
 
 Home.init();
 
-function buildMessage(value,Img){
-    if (!value) {
-        return "message not found";
-    }
-    let data = value.toLowerCase();
-    if(data.includes("hint")||data.includes("good")){
-        return `<img  src=${Img.portyPapper} >  `+value;
-    }else if(data.includes("certificate")||data.includes("earn")){
-        return `<img  src=${Img.tropy} >  `+value;
-    }else if(data.includes("challenged")||data.includes("mode")){
-        return `<img src=${Img.lightning}>  `+value;
-    }else{
-        return value;
-    }
-}
-
-function dateDifference(value){
-    let currentTime=new Date();
-    let previousTime=new Date(value);
-    let diff=currentTime-previousTime;
-
-    let day=Math.floor(diff/(1000*60*60*24));
-    let hour=Math.floor(diff/(1000*60*60));
-    let minute=Math.floor(diff/(1000*60));
-
-    if(day==1){
-        return "1 day ago";
-    }
-    else if(day > 1){
-        return day+" days ago";
-    }
-
-    if(hour == 1){
-        return "1 hours ago";
-    }else if(hour > 1){
-        return hour+" hours ago";
-    }
-
-    if(minute < 10 && minute > 0){
-        return "few minute ago";
-    }else {
-        return minute+" minutes ago"
-    }
-}
 
 function emptyCheck(value){
     if((value !== undefined) && (value !== null)){
@@ -294,3 +249,78 @@ document.addEventListener("visibilitychange", async function ()  {
         }
        
  })();
+
+
+
+window.buildMessage=function(value,Img){
+    if (!value) {
+        return "message not found";
+    }
+    let data = value.toLowerCase();
+    if(data.includes("hint")||data.includes("good")){
+        return `<img  src=${Img.portyPapper} >  `+value;
+    }else if(data.includes("certificate")||data.includes("earn")){
+        return `<img  src=${Img.tropy} >  `+value;
+    }else if(data.includes("challenged")||data.includes("mode")){
+        return `<img src=${Img.lightning}>  `+value;
+    }else{
+        return value;
+    }
+}
+
+window.dateDifference=function(value){
+    let currentTime=new Date();
+    let previousTime=new Date(value);
+    let diff=currentTime-previousTime;
+
+    let day=Math.floor(diff/(1000*60*60*24));
+    let hour=Math.floor(diff/(1000*60*60));
+    let minute=Math.floor(diff/(1000*60));
+
+    if(day==1){
+        return "1 day ago";
+    }
+    else if(day > 1){
+        return day+" days ago";
+    }
+
+    if(hour == 1){
+        return "1 hours ago";
+    }else if(hour > 1){
+        return hour+" hours ago";
+    }
+
+    if(minute < 10 && minute > 0){
+        return "few minute ago";
+    }else {
+        return minute+" minutes ago"
+    }
+}
+
+ function addMessage(msg,timevalue,img){
+    const notification = $("<div>", {
+        id: `notification`
+    });
+
+    const message = $("<div>", {
+        class: "notification-message",
+        html: buildMessage(msg, img)
+    });
+
+    const time = $("<div>", {
+        class: "notification-time"
+    });
+
+    const clock = $("<img>", {
+        src: img.clock,
+        class: "clock"
+    });
+
+    const timeText = dateDifference(timevalue);
+
+    time.append(clock).append(" " + timeText);
+    notification.append(message).append(time);
+
+    return notification;
+
+ }

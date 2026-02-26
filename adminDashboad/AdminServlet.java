@@ -70,7 +70,7 @@ public class AdminServlet extends HttpServlet {
 
 					LOGGER.info(new StringBuilder("::: Get data for announcement ::: querying into AdminManager :::").toString());
 			
-					res = ResponseUtil.buildResponce(AdminManager.getAnnouncements(clientId), "data recived");
+					res = ResponseUtil.buildResponce(AdminManager.getAnnouncements(4), "data recived");
 				}else if(arr[3].equals("questions")) {
 					LOGGER.info(new StringBuilder("::: Get data for questions ::: querying into AdminManager :::").toString());
 					

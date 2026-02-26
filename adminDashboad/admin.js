@@ -12,12 +12,30 @@ Admin=(function(){
             { text: "Nashik" }
         ]
     };
+            
+    async function getQuiz() {
+        try {
+            let response = await fetch("/MapFinder/quizz");
+
+            if (!response.ok) {
+                throw new Error("HTTP error " + response.status);
+            }
+
+            let data = await response.json();
+            console.log(data);
+
+        } catch (error) {
+            console.error("Error fetching quiz:", error);
+        }
+    }
+
+    getQuiz();
     var sampleUsers = [
         {
           name: "Alice Johnson",
           points: 1200,
           certificates: 5,
-          mostPlayed: "Chess",
+          mostPlayed: "practice",
           hints: 3,
           joined: "2023-01-15"
         },
@@ -25,7 +43,7 @@ Admin=(function(){
           name: "Bob Smith",
           points: 850,
           certificates: 2,
-          mostPlayed: "Sudoku",
+          mostPlayed: "practice",
           hints: 7,
           joined: "2022-11-05"
         },
@@ -33,7 +51,7 @@ Admin=(function(){
           name: "Charlie Lee",
           points: 1570,
           certificates: 8,
-          mostPlayed: "Crossword",
+          mostPlayed: "practice",
           hints: 1,
           joined: "2023-03-22"
         },
@@ -41,7 +59,7 @@ Admin=(function(){
           name: "Diana Wang",
           points: 950,
           certificates: 3,
-          mostPlayed: "Scrabble",
+          mostPlayed: "practice",
           hints: 4,
           joined: "2022-08-12"
         },
@@ -49,7 +67,7 @@ Admin=(function(){
           name: "Ethan Patel",
           points: 1300,
           certificates: 6,
-          mostPlayed: "Trivia",
+          mostPlayed: "bot vs player",
           hints: 2,
           joined: "2023-02-10"
         }

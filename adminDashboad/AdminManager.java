@@ -1,7 +1,13 @@
 //$Id$
 package com.mapfinder.services;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.json.JSONArray;
+
+import com.mapfinder.modal.Quiz;
 
 public class AdminManager {
 		
@@ -32,142 +38,112 @@ public class AdminManager {
 	public static JSONArray getQuestions() {
 		return quizz.getAllQuestion();
 	}
-}
 
-
-LeaderBoardManager
-
-
-public static long totalPointsOfAllUsers() {
-	return leaderBoard.totalPoitsOfAllUsers();
-}
-
-
-certificatManager
-
-public static long totalCertificateCount() {
-	try {
-		return CertificateManger.certificate.totalCertificateCount();
-		
-	} catch (Exception e) {
-		LOGGER.warn(new StringBuilder("::: Problem in Creating Object :::  "+e.getMessage()+" ::: ").toString());
-		return 0;
-	}
-}
-
-
-UserManager
-
-public static float getAvgHint() {
-	return (userDAO.getAvgHint()/(float)getUserCount());
-}
-
-public static long getUserCount() {
-	return userDAO.getUserCount();
-}
-
-public static JSONArray getAllusers() {
-	return userDAO.getAllUserData();
-}
-
-UserDAO 
-
-public long getAvgHint() {
-	try {
-		PreparedStatement ps=con.prepareStatement(QueryUtil.TOTAL_USERS_HINT);
-		ResultSet rs=ps.executeQuery();
-		rs.next();
-		return rs.getLong("total");
-		
-	} catch (SQLException e) {
-		LOGGER.error(new StringBuilder("Problem in Fetch average hint of all user :::  "+e.getMessage()+"   :::").toString());
-	}
-	return 0;
-}
-
-
-public long getUserCount() {
-	try {
-		Statement stmt = con.createStatement();
-		ResultSet rs = stmt.executeQuery(QueryUtil.SELECT_USERCOUNT);
-		rs.next();
-		return rs.getLong("userCount");
-	}
-	catch(SQLException e) {
-		LOGGER.error(new StringBuilder("Problem in Fetch User count:::  "+e.getMessage()+"   :::").toString());
-		return -1l;
-		
-	}
-}
-
-public JSONArray getAllUserData() {
-	JSONArray array=new JSONArray();
-	try {
-		Statement stmt = con.createStatement();
-		ResultSet rs = stmt.executeQuery(QueryUtil.TOTAL_USERS);
-		while (rs.next()) {
-			JSONObject json = new JSONObject();
-			json.put("id",rs.getInt("user_id"));
-			json.put("USERNAME",rs.getString("USERNAME"));
-			json.put("CREATED_AT", rs.getTimestamp("CREATED_AT").toLocalDateTime());
-			json.put("HINTS", rs.getLong("HINTS"));
-			json.put("certificateCount", rs.getLong("certificateCount"));
-			json.put("total_score", rs.getLong("total_score"));
-			array.put(json);
-		}
-			
-		return array;
-	}catch(SQLException e) {
-		LOGGER.error(new StringBuilder("Problem in Fetch all user datas:::  "+e.getMessage()+"   :::").toString());
-	}
-	return array;
-}
-
-
-leaderboardDAO 
-
-public long totalPoitsOfAllUsers() {
-    	
-	try {
-		PreparedStatement ps= conn.prepareStatement(QueryUtil.TOTALPOINTS);
-		ResultSet rs = ps.executeQuery();
-		rs.next();
-		return rs.getLong("total");
-	} catch (Exception e) {
-		e.printStackTrace();
+	public static String deletemessage(int id) {
+		return AnnouncementManager.deleteAnnouncement(id);
 	}
 	
-	return -1;
+	public static String deletequestion(int id) {
+		return quizz.deleteQuestion(id);
+	}
+	
+	public static void addMessage(String title,String message,int userId) {
+		AnnouncementManager.addAnnouncement(title, message, userId, true);
+	}
+	
+	public static String updateMessage(int id,String message,String title) {
+		return AnnouncementManager.updateAnnouncement(id, message, title);
+	}
+	public static boolean addquestion(Quiz quiz) {
+		return quizz.insertQuiz(quiz);
+	}
 }
 
 
-certificateDAO 
 
-public long totalCertificateCount() {
-	LOGGER.trace(new StringBuilder("::: get userCertificateCount into DB :::  Creating Object for Certificate ::: ").toString());
-	int totalCertificates = 0;
+
+
+AnnouncementDAO
+ 
+public boolean delete(int Id) {
 	try {
-		PreparedStatement ps = conn.prepareStatement(QueryUtil.TOTAL_CERTIFICATE);
-		ResultSet rs = ps.executeQuery();
-		rs.next();
-		return rs.getLong("total");
-		
+		PreparedStatement stmt=conn.prepareStatement("DELETE from announcements where announcement_id = ?");
+		stmt.setInt(1, Id);
+		return stmt.execute();
 	} catch (Exception e) {
+		return false;
+	}
+}
+
+public JSONObject getAnnouncement(int Id) {
+	JSONObject json = new JSONObject();
+
+	try (PreparedStatement ps = conn.prepareStatement(QueryUtil.GET_ANNOUNCEMENT_ID)) {
+
+		ps.setInt(1, Id);
+		ResultSet rs = ps.executeQuery();
+
+		rs.next();
+			
+	   json.put("id",rs.getInt("announcement_id"))
+			   .put("title",rs.getString("title"))
+			   .put("message",rs.getString("message"));
+		
+	}
+	catch (Exception e) {
+		e.printStackTrace();
+		
+	}
+	return json;
+}
+
+public boolean updateAnnouncement(int id,String message,String title) {
+	
+	try (PreparedStatement ps = conn.prepareStatement(QueryUtil.UPDATE_ANNOUNCEMENT)){
+		ps.setString(1, title);
+		ps.setInt(3, id);
+		ps.setString(2, message);
+		
+		return ps.execute();
+	}catch (Exception e) {
 		e.printStackTrace();
 	}
-
-	return totalCertificates;
-
+	return false;
 }
 
+AnnouncementManager 
+
+public static JSONObject getAnnouncementByID(int id) {
+	return AnnouncementManager.announcement.getAnnouncement(id);
+}
+
+public static String deleteAnnouncement(int Id) {
+	try {
+		if(AnnouncementManager.announcement.delete(Id)) {
+			return "Sucess"; 
+		}else {
+			return "Error was happen in delete";
+		}
+	} catch (Exception e) {
+		return "Error was happen in delete";
+	}
+}
+
+public static String updateAnnouncement(int Id,String message,String title) {
+	try {
+		if(AnnouncementManager.announcement.updateAnnouncement(Id,message,title)) {
+			return "Sucess"; 
+		}else {
+			return "Error was happen in delete";
+		}
+	} catch (Exception e) {
+		return "Error was happen in delete";
+	}
+}
 
 
 queryUtil 
 
-public static final String ALL_QUESTION=" SELECT q.title,qs.id AS question_id,qs.question_text,JSON_ARRAYAGG(JSON_OBJECT('choice', c.choice_text,'correct', c.is_correct)) AS choices FROM quizzes q JOIN questions qs ON q.id = qs.quiz_id JOIN choices c ON qs.id = c.question_id WHERE qs.quiz_id = q.id GROUP BY q.title, qs.id, qs.question_text ORDER BY qs.id";
-public static final String TOTAL_CERTIFICATE="select count(*) as total from certificates";
-public static final String TOTALPOINTS="SELECT SUM(total_score) as total from leaderboard";
-public static final String TOTAL_USERS_HINT="select sum(HINTS) as total from users";
-public static final String SELECT_USERCOUNT = "select count(*) as userCount from users";
-public static final String TOTAL_USERS="SELECT u.user_id,u.USERNAME,u.CREATED_AT,u.HINTS,COUNT(c.certificate_id) AS certificateCount,COALESCE(l.total_score, 0) AS total_score FROM users u LEFT JOIN user_certificates c ON u.user_id = c.user_id LEFT JOIN leaderboard l ON u.user_id = l.user_id GROUP BY u.user_id,u.USERNAME,u.CREATED_AT, u.HINTS,l.total_score";
-	
+
+public static final String GET_ANNOUNCEMENT_ID="select * from announcements where announcement_id = ?";
+public static final String UPDATE_ANNOUNCEMENT="UPDATE announcements SET title = ? , message = ? WHERE announcement_id = ?";

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,11 +9,18 @@
     <script src="../js/Util.js"></script>
     <link rel="stylesheet" href="adminDashboard.css">
 </head>
+
 <body>
     <div id="admin-dashboard">
         <div id="header">
             <div id="back">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-6 h-6 text-blue-700" aria-hidden="true" data-fg-djv97=":618.21600:/components/AdminPanel.tsx:208:17:5391:47:e:ArrowLeft::::::EIC8"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-arrow-left w-6 h-6 text-blue-700" aria-hidden="true"
+                    data-fg-djv97=":618.21600:/components/AdminPanel.tsx:208:17:5391:47:e:ArrowLeft::::::EIC8">
+                    <path d="m12 19-7-7 7-7"></path>
+                    <path d="M19 12H5"></path>
+                </svg>
             </div>
             <div id="header-content">
                 <h1>Admin Dashboard</h1>
@@ -24,63 +32,69 @@
                 User Statistics
             </button>
             <button id="quiz-management">
-                Quiz Management 
+                Quiz Management
             </button>
             <button id="announcement">
                 Announcements
             </button>
         </div>
         <div id="statistic_view">
-        <div id="containers">
-            <div id="total-user-container">
-                <p>Total Users</p>
-                <h1 id="total-user-count">4</h1>
+            <div id="containers">
+                <div id="total-user-container">
+                    <p>Total Users</p>
+                    <h1 id="total-user-count">4</h1>
+                </div>
+                <div id="total-ponits-container">
+                    <p>Total Points</p>
+                    <h1 id="total-points-count">8780</h1>
+                </div>
+                <div id="total-certificate-container">
+                    <p>Total Certificates Earned</p>
+                    <h1 id="total-certificate-count">16</h1>
+                </div>
+                <div id="avg-hint-container">
+                    <p>Avg Hints</p>
+                    <h1 id="avg-hint">11</h1>
+                </div>
             </div>
-            <div id="total-ponits-container">
-                <p>Total Points</p>
-                <h1 id="total-points-count">8780</h1>
+            <div id="export-button-container">
+                <button id="export">
+                    <img src="../icons/colorized-export.png.png" alt="">Export to CSV</button>
             </div>
-            <div id="total-certificate-container">
-                <p>Total Certificates Earned</p>
-                <h1 id="total-certificate-count">16</h1>
-            </div>
-            <div id="avg-hint-container">
-                <p>Avg Hints</p>
-                <h1 id="avg-hint">11</h1>
+            <div id="user-detail-container">
+                <div id="user-detail-head">
+                    <h3>User</h3>
+                    <h3>Points</h3>
+                    <h3>Certificates</h3>
+                    <h3>Most Played</h3>
+                    <h3>Hint</h3>
+                    <h3>Joined</h3>
+                </div>
             </div>
         </div>
-        <div id="export-button-container">
-            <button id="export">
-                <img src="../icons/colorized-export.png.png" alt="">Export to CSV</button>
-        </div>
-        <div id="user-detail-container">
-            <div id="user-detail-head">
-                <h3>User</h3>
-                <h3>Points</h3>
-                <h3>Certificates</h3>
-                <h3>Most Played</h3>
-                <h3>Hint</h3>
-                <h3>Joined</h3>
+        <div id="quiz_view">
+            <div id="button_container">
+                <button id="addQuestion">
+                    <img src="../icons/colorized-plus.png.png" alt="">Add Question</button>
+                <button id="import">
+                    <img src="../icons/colorized-download.png" alt="">Import CSV</button>
+                <input type="file" hidden id="importFile" accept=".csv">
+            </div>
+            <div id="quiz_container">
+                <h3 id="quizquestioncount">2</h3>
+
             </div>
         </div>
-    </div>
-    <div id="quiz_view">
-        <div id="button_container">
-            <button id="addQuestion">
-                <img src="../icons/colorized-plus.png.png" alt="">Add Question</button>
-            <button id="import">
-                <img src="../icons/colorized-download.png" alt="">Import CSV</button>
+        <div id="announcement_view">
+
         </div>
-        <div id="quiz_container">
-            <h3 id="quizquestioncount">2</h3>
-            
-        </div>
-    </div>
-    <div id="announcement_view">
-        
-    </div>
     </div>
     <script src="admin.js"></script>
 
 </body>
+
 </html>
+
+
+<!-- --------------------------------------------- udtygvh  --------------------------------------------------- -->
+

@@ -155,7 +155,14 @@ public class AdminServlet extends HttpServlet {
 				}
 				if(arr[3].equals("questions")) {
 					LOGGER.info(new StringBuilder("::: IN POST data for questions ::: querying into AdminManager :::").toString());
-					Quiz quizz=JSONUtil.buildQuizFromJson(payload);
+					
+					int id=payload.getInt("id");
+					String question=payload.getString("question");
+					JSONArray optionArray = payload.getJSONArray("option");
+					JSONArray correctoption=payload.getJSONArray("choice");
+					System.out.println(payload);
+					
+					AdminManager.addquestion(id, question,optionArray,correctoption);
 					
 					
 				}else if(arr[3].equals("message")){

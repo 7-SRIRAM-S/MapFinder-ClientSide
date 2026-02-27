@@ -54,8 +54,12 @@ public class AdminManager {
 	public static String updateMessage(int id,String message,String title) {
 		return AnnouncementManager.updateAnnouncement(id, message, title);
 	}
-	public static boolean addquestion(Quiz quiz) {
-		return quizz.insertQuiz(quiz);
+	public static boolean addquestion(int id ,String question,JSONArray option,JSONArray correct) {
+		return quizz.insertQuestion(id,question,option,correct);
+	}
+	
+	public static JSONArray getContentType() {
+		return quizz.getContentType();
 	}
 }
 
@@ -63,7 +67,29 @@ public class AdminManager {
 
 
 
-AnnouncementDAO
+quizzManager
+
+public static String deleteQuestion(int id) {
+	if(new QuizzDAO().delete(id)) {
+		return "succes";
+	}else {
+		return "process was failed";
+	}
+}
+
+public static boolean insertQuestion(int id,String question,JSONArray option,JSONArray correct) {
+	try {
+	
+		return new QuizzDAO().insertQuestion(id,question,option,correct);
+	
+	} catch (Exception e) {
+		return false;
+	}
+}
+
+public static JSONArray getContentType() {
+	return new QuizzDAO().getContentType();
+
  
 public boolean delete(int Id) {
 	try {
@@ -75,75 +101,150 @@ public boolean delete(int Id) {
 	}
 }
 
-public JSONObject getAnnouncement(int Id) {
-	JSONObject json = new JSONObject();
 
-	try (PreparedStatement ps = conn.prepareStatement(QueryUtil.GET_ANNOUNCEMENT_ID)) {
+quizDAO  
 
-		ps.setInt(1, Id);
-		ResultSet rs = ps.executeQuery();
-
-		rs.next();
-			
-	   json.put("id",rs.getInt("announcement_id"))
-			   .put("title",rs.getString("title"))
-			   .put("message",rs.getString("message"));
-		
+public JSONArray getAllQuestion() {
+	JSONArray array = new JSONArray();
+	try {
+		Statement stmt=con.createStatement();
+		ResultSet rs=stmt.executeQuery(QueryUtil.ALL_QUESTION);
+		while(rs.next()) {
+			JSONObject json= new JSONObject();
+			json.put("id", rs.getLong("question_id"));
+			json.put("title", rs.getString("title"));
+			json.put("question_text", rs.getString("question_text"));
+			json.put("options", new JSONArray(rs.getString("choices")));
+			array.put(json);
+		}
+	}catch (SQLException e) {
+		LOGGER.error(new StringBuilder("Problem in Fetch All questions :::  "+e.getMessage()+"   :::").toString());
 	}
-	catch (Exception e) {
-		e.printStackTrace();
-		
-	}
-	return json;
+	return array;
 }
 
-public boolean updateAnnouncement(int id,String message,String title) {
-	
-	try (PreparedStatement ps = conn.prepareStatement(QueryUtil.UPDATE_ANNOUNCEMENT)){
-		ps.setString(1, title);
-		ps.setInt(3, id);
-		ps.setString(2, message);
+public JSONArray getContentType() {
+	JSONArray array=new JSONArray();
+	try {
+		Statement stmt=con.createStatement();
+		ResultSet rs=stmt.executeQuery(QueryUtil.SELECT_CONTENT_TYPE);
+		while(rs.next()) {
+			JSONObject json= new JSONObject();
+			json.put("id", rs.getLong("id"));
+			json.put("contentType", rs.getString("content_type"));
+			array.put(json);
+		}
+	}catch (SQLException e) {
+		LOGGER.error(new StringBuilder("Problem in Fetch All content Type  :::  "+e.getMessage()+"   :::").toString());
+	}
+	return array;
+}
+
+public boolean delete(int id) {
+	try {
+		PreparedStatement ps=con.prepareStatement("DELETE FROM questions WHERE id = ?");
 		
+		ps.setInt(1, id);
 		return ps.execute();
 	}catch (Exception e) {
-		e.printStackTrace();
+		LOGGER.error(new StringBuilder("Problem in Deleting question and choice :::  "+e.getMessage()+"   :::").toString());
 	}
 	return false;
 }
 
-AnnouncementManager 
+public boolean insertQuestion(int id,String question,JSONArray option,JSONArray correct) {
 
-public static JSONObject getAnnouncementByID(int id) {
-	return AnnouncementManager.announcement.getAnnouncement(id);
-}
-
-public static String deleteAnnouncement(int Id) {
 	try {
-		if(AnnouncementManager.announcement.delete(Id)) {
-			return "Sucess"; 
-		}else {
-			return "Error was happen in delete";
+
+		PreparedStatement quizStmt = con.prepareStatement(QueryUtil.INSERTQUESTION);
+
+		quizStmt.setInt(1, id);
+		quizStmt.setString(2, question);
+
+		quizStmt.execute();
+
+		Statement stmt = con.createStatement();
+		
+		ResultSet rs = stmt.executeQuery(QueryUtil.LAST_MODIFIED_ID);
+		
+		rs.next();
+		
+		int question_id=Integer.parseInt(rs.getString("id"));
+
+		PreparedStatement ps = con.prepareStatement(QueryUtil.INSERT_FOUR_CHOICE);
+		
+		for(int i=0;i<option.length();i++) {
+			ps.setInt(1+(3*i), question_id);
+			ps.setString(2+(3*i), option.getString(i));
+			System.out.println(correct.getString(i));
+			if(correct.getString(i).equals(true)) {
+				ps.setInt(3+(3*i),1);
+			}else {
+				ps.setInt(3+(3*i),0);
+			}
 		}
+		
+		
+		
+		System.out.println(id+" --- "+question+" -- "+option);
+
+		return ps.execute();
 	} catch (Exception e) {
-		return "Error was happen in delete";
+		LOGGER.warn(new StringBuilder("::: Problem in Inserting Quiz :::  "+e.getMessage()+" ::: ").toString());
+		return false;
 	}
 }
 
-public static String updateAnnouncement(int Id,String message,String title) {
+
+
+query utill
+
+public static final String SELECT_CONTENT_TYPE="select id , content_type from quizzes";
+	
+public static final String LAST_MODIFIED_ID="select LAST_INSERT_ID() as id";
+
+public static final String INSERT_FOUR_CHOICE="INSERT INTO choices (question_id, choice_text, is_correct)  VALUES (?, ?, ?) ,(?, ?, ?),(?, ?, ?),(?, ?, ?)";
+
+
+
+responseUtil
+
+public static void sendResponceFile(HttpServletResponse response, StringBuffer data) {
 	try {
-		if(AnnouncementManager.announcement.updateAnnouncement(Id,message,title)) {
-			return "Sucess"; 
-		}else {
-			return "Error was happen in delete";
-		}
+		response.setContentType("text/csv; charset=UTF-8");
+		response.setHeader("Content-Disposition", "attachment; filename=test.csv;");
+		response.setHeader("X-Download-Options", "noopen");
+		response.getWriter().println(data.toString());
+
 	} catch (Exception e) {
-		return "Error was happen in delete";
+		e.printStackTrace();
 	}
+	
 }
 
+public static void processResponseFile(HttpServletResponse response, JSONObject responseJson) {
+	try {
+	
+		 JSONArray jsonArray = responseJson.getJSONArray("data");
+					  
+		 String heading="ID,USERNAME,SCORE,CERTIFICATES,HINTS,CREATED_AT";
 
-queryUtil 
+		  ArrayList<String> string= new ArrayList<>();
+		  string.add(heading);
+		  for (int i = 0; i < jsonArray.length(); i++) {
+			  JSONObject obj = jsonArray.getJSONObject(i);
+			  String row = obj.getInt("id") +"," + obj.getString("USERNAME") +"," + obj.getInt("total_score") +"," + obj.getInt("certificateCount") +"," + obj.getInt("HINTS") +"," + (obj.get("CREATED_AT")).toString();
+			  string.add(row);
+		 }
+		StringBuffer sb=new StringBuffer();
+		
+		string.forEach(data->{
+			sb.append(data);
+			sb.append("\n");
+		});
 
-
-public static final String GET_ANNOUNCEMENT_ID="select * from announcements where announcement_id = ?";
-public static final String UPDATE_ANNOUNCEMENT="UPDATE announcements SET title = ? , message = ? WHERE announcement_id = ?";
+		sendResponceFile(response, sb);
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+}

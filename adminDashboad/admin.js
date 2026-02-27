@@ -6,7 +6,8 @@ Admin=(function(){
             dashBoardUrl:"/MapFinder/admin/dashboard",
             messageUrl:"/MapFinder/admin/announcements",
             questionUrl:"/MapFinder/admin/questions",
-      messageWthIdUrl:"/MapFinder/admin/announcement?id={1}"
+      messageWthIdUrl:"/MapFinder/admin/announcement?id={1}",
+      categoryTypeUrl:"/MapFinder/admin/contentType"
         },
         delete:{
             messageUrl:"/MapFinder/admin/deletemessage?messageId={1}",
@@ -16,7 +17,8 @@ Admin=(function(){
           userUrl:"/MapFinder/admin/saveUsers",
         },
     post:{
-    messageUrl:"/MapFinder/admin/message"
+    messageUrl:"/MapFinder/admin/message",
+    questionUrl:"/MapFinder/admin/questions"
     },
     edit:{
     messageUrl:"/MapFinder/admin/editMessage"
@@ -119,7 +121,8 @@ return{
     
     $(document).on("click","#addQuestion",()=>{
     $("#admin-dashboard").removeClass("show");	
-      $("#quesstionform_page").addClass("show");			
+      $("#quesstionform_page").addClass("show");
+      Admin.view.show.category();			
     })
     
     $(document).on("click","#closequesstionform",()=>{
@@ -177,7 +180,7 @@ return{
                 let data=value.data;
                 console.log(data)
                 $("#quiz_container").html($("<h3>").attr("id","quizquestioncount").text(5));
-                for(i=0;i<data.length;i++){
+                for(let i=0;i<data.length;i++){
                     $("#quiz_container").append(createQuestionContainer(i+1,data[i]));
                 }
             },
@@ -192,6 +195,19 @@ return{
       $("#announcement_title").val(data.title)
       $("#announcement_message").val(data.message)
       $("#announcement_submit").data("id", data.id);;
+      },
+      category:async function(){
+      let value= await Admin.get.category();
+      
+      let data= value.data;
+      
+      let drop=$("#category").html("");
+      drop.append('<option value="">-- select category --</option>');
+      console.log(data[0].contentType,data.length);
+      
+      for(let i=0;i<data.length;i++){
+        drop.append($("<option>").attr("id",data[i].id).attr("value", data[i].contentType).text(data[i].contentType).addClass(data[i].contentType));
+      }
       }
         },
         save:{
@@ -240,16 +256,19 @@ return{
     console.log($("#option3").is(":checked"));
     console.log($("#option4").is(":checked"));
     
+    let value=$("#category").val();
+    
+    let option=$("#category").find("."+value);
+    
     let data={
       "option":[$("#choice1").val(),$("#choice2").val(),$("#choice3").val(),$("#choice4").val()],
       "choice":[$("#option1").is(":checked"),$("#option2").is(":checked"),$("#option3").is(":checked"),$("#option4").is(":checked")],
       "question":$("#quesstionform_question").val(),
-      "category_id":$("#category").val()
+      "id":option.attr("id")
     }
     
+    Admin.Post.question(data);
     console.log(data);
-    $("#quesstionform_page").removeClass("show");
-    $("#admin-dashboard").addClass("show");	
   }
   },
     delete:{
@@ -310,6 +329,15 @@ return{
                 console.log("error",error);
             }
         },
+    category:async function(){
+    let url=Api.show.categoryTypeUrl
+    try{
+                let response=await API.get(url);
+                return response.data;
+            }catch(error){
+              console.log("error",error);
+      }
+    },
         save: function(){
           let url=Api.save.userUrl
 
@@ -347,6 +375,17 @@ return{
       $("#admin-dashboard").addClass("show");
       $("#announcement_page").removeClass("show");
       Admin.view.show.messages();
+    }catch(error){
+      console.log("error",error);
+    }
+  },
+  question:async function(data){
+    let url=Api.post.questionUrl
+    try{
+      let responce=await API.post(url,data);
+      $("#quesstionform_page").removeClass("show");
+      $("#admin-dashboard").addClass("show");	
+      Admin.view.show.question();
     }catch(error){
       console.log("error",error);
     }

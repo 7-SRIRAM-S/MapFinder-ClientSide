@@ -1,0 +1,204 @@
+package com.mapfinder.utils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.logging.log4j.LogManager;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import com.mapfinder.modal.Announcement;
+import com.mapfinder.modal.Challenge;
+import com.mapfinder.modal.Choice;
+import com.mapfinder.modal.Leaderboard;
+import com.mapfinder.modal.Notification;
+import com.mapfinder.modal.Question;
+import com.mapfinder.modal.Quiz;
+
+
+
+public class JSONUtil {
+	public static JSONObject readAsJSON(HttpServletRequest request) {
+		
+		LogManager.getLogger(JSONUtil.class).trace(new StringBuilder("::: Reading json data from servlet ::: Utility ::: returning json data :::").toString());
+
+		StringBuilder sb=new StringBuilder();
+		BufferedReader reader=null;
+		try {
+			reader = request.getReader();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		String line=null;
+		try {
+			while((line=reader.readLine())!=null) {
+				sb.append(line);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		JSONObject json=new JSONObject(sb.toString());
+		return json;
+	}
+	
+	
+	
+	public static JSONArray convertLeaderBoardToJson(List<Leaderboard> leaderboards) {
+		JSONArray mapList = new JSONArray();
+		for(Leaderboard leader: leaderboards) {
+			JSONObject obj=new JSONObject();
+			obj.put("leaderboardId", leader.getLeaderboardId());
+			obj.put("userId", leader.getUserId());
+			obj.put("mapId", leader.getMapId());
+			obj.put("modeId" , leader.getModeId());
+			obj.put("totalScore", leader.getTotalScore());
+			obj.put("totalGame", leader.getTotalGame());
+			obj.put("averageScore", leader.getAverageScore());
+			obj.put("rankPosition", leader.getRankPosition());
+			obj.put("userName", leader.getUserName());
+			obj.put("totalCertificate" , leader.getCertificateCount());
+			obj.put("isFriend", leader.getIsFriend());
+			mapList.put(obj);
+		}
+		return mapList;
+	}
+	
+	
+	
+	public static JSONArray convertAnnouncementTOJson(List<Announcement> announcements) {
+		JSONArray announcementList = new JSONArray();
+		
+		for(Announcement announcement: announcements) {
+			JSONObject obj = new JSONObject();
+			obj.put("announcementId", announcement.getAnnouncementsId());
+			obj.put("title", announcement.getTitle());
+			obj.put("message", announcement.getMsg());
+			obj.put("createdBy", announcement.getCreatedBy());
+			obj.put("isActive", announcement.getIsActive());
+			obj.put("createdAt", announcement.getCreatedAt());
+			announcementList.put(obj);
+		}
+		
+		return announcementList;
+	}
+	
+	
+	public static JSONArray convertNotificationsToJson(List<Notification> notifications){
+		JSONArray notificationJson = new JSONArray();
+		
+		for(Notification notification: notifications) {
+			JSONObject obj = new JSONObject();
+			obj.put("notificationId", notification.getNotificationId());
+			obj.put("userId", notification.getUserId());
+			obj.put("senderId", notification.getSenderId());
+			obj.put("message", notification.getMessage());
+			obj.put("type", notification.getType());
+			obj.put("createdAt", notification.getCreatedAt());
+			notificationJson.put(obj);
+			
+		}
+		return notificationJson;
+	}
+	
+	
+	public static JSONArray convertChallengeTOJson(List<Challenge> challenges) {
+		JSONArray challengesJson = new JSONArray();
+		for(Challenge challenge : challenges) {
+			JSONObject obj = new JSONObject();
+			obj.put("challengeId", challenge.getChallengeId());
+			obj.put("challengerId",challenge.getChallengerId());
+			obj.put("opponentId", challenge.getOpponentId());
+			obj.put("mode", challenge.getMode());
+			obj.put("status", challenge.getStatus());
+			obj.put("challengerScore", challenge.getChallengerScore());
+			obj.put("opponentScore", challenge.getOpponentScore());
+			obj.put("winnerId", challenge.getWinnerId());
+		}
+		return challengesJson;
+	}
+	
+	
+	public static JSONArray convertQuizzToJson(List<Quiz> quizz) {
+		JSONArray quizJson = new JSONArray();
+		for(Quiz quiz: quizz) {
+			JSONObject quizObject = new JSONObject();
+			quizObject.put("quizId",quiz.getId());
+			quizObject.put("quizDesc",quiz.getDescription());
+			quizObject.put("issuerName",quiz.getIssuerName());
+			quizObject.put("title",quiz.getTitle());
+			JSONArray questionJSON = new JSONArray();
+			for(Question question: quiz.getQuestions()) {
+				JSONObject questionObj = new JSONObject();
+				questionObj.put("questionId", question.getId());
+				questionObj.put("questionName", question.getQuestionText());
+				JSONArray choiceJson = new JSONArray();
+				for(Choice choice: question.getChoise()) {
+					JSONObject choiceObj = new JSONObject();
+					choiceObj.put("choiceId", choice.getChoiceId());
+					choiceObj.put("questionId", choice.getQuestionId());
+					choiceObj.put("choiceText", choice.getChoiceText());
+					choiceObj.put("isCorrect", choice.isCorrect());
+					choiceJson.put(choiceObj);
+				}
+				questionObj.put("options", choiceJson);
+				questionJSON.put(questionObj);
+				
+			}
+			quizObject.put("questions", questionJSON);
+			quizJson.put(quizObject);
+		}
+		return quizJson;
+		
+	}
+	
+	
+	public static Quiz buildQuizFromJson(JSONObject json) {
+
+	    Quiz quiz = new Quiz();
+
+	    quiz.setTitle(json.getString("title"));
+	    quiz.setDescription(json.getString("description"));
+	    quiz.setIssuerName(json.getString("issuerName"));
+	    quiz.setContentType(json.getString("contentType"));
+
+	    List<Question> questionList = new ArrayList<>();
+
+	    JSONArray questions = json.getJSONArray("questions");
+
+	    for (int i = 0; i < questions.length(); i++) {
+
+	        JSONObject qObj = questions.getJSONObject(i);
+
+	        Question question = new Question();
+	        question.setQuestionText(qObj.getString("question_text"));
+
+	        List<Choice> choiceList = new ArrayList<>();
+
+	        JSONArray options = qObj.getJSONArray("options");
+
+	        for (int j = 0; j < options.length(); j++) {
+
+	            JSONObject cObj = options.getJSONObject(j);
+
+	            Choice choice = new Choice();
+	            choice.setChoiceText(cObj.getString("choice"));
+	            choice.setCorrect(cObj.getBoolean("correct"));
+
+	            choiceList.add(choice);
+	        }
+
+	        question.setChoise(choiceList);
+	        questionList.add(question);
+	    }
+
+	    quiz.setQuestions(questionList);
+
+	    return quiz;
+	}
+	
+	
+}
